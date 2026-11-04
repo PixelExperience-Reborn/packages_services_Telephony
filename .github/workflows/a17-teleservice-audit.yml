@@ -1,0 +1,33 @@
+name: AOSP17 TeleService historical source audit
+
+on:
+  push:
+    branches:
+      - audit/a17-mondrian-teleservice-20261104
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  old-telephony-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            Android.bp
+            AndroidManifest.xml
+            TEST_MAPPING
+            assets/eri_311580.xml
+            src/com/android/phone/settings/RadioInfo.java
+            src/com/android/phone/CarrierConfigLoader.java
+            res/layout/radio_info.xml
+            docs
+            tools
+          sparse-checkout-cone-mode: false
+      - name: Check archived TeleService Soong and carrier config provenance
+        run: python3 tools/verify_a17_teleservice_legacy.py
